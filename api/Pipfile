@@ -1,0 +1,15 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+Flask = "==1.0.2"
+Flask-SQLAlchemy = "==2.4.1"
+flask_cors = "*"
+psycopg2 = "==2.8.5"
+twilio = "==6.23.1"
+
+[dev-packages]
+black = "*"
+pytest = "==4.4.1"
