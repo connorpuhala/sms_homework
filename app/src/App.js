@@ -161,9 +161,11 @@ class MainAppContainer extends Component {
        }
     })
 
-    if (!!!chosenProduct)
-      return 
-      
+    if (!chosenProduct) {
+      chosenProduct = productsInCompany[0]
+    }
+    
+
     this.setState({
       user : user,
       products : productsInCompany,
@@ -249,7 +251,7 @@ class LoginView extends Component {
               name='password'
               onChange={this.myChangeHandler}
             />
-          <button class="ui button" onClick={this.checkID}>Log-in</button>
+          <button className="ui button" onClick={this.checkID}>Log-in</button>
         </Form>
       </div>
     )
@@ -275,10 +277,10 @@ class SMSManagerView extends Component {
   }
 
   componentDidMount(){
-    this.requestMessages()
+    this.updateMessages()
   }
 
-  requestMessages = () => {
+  updateMessages = () => {
     let read_message_request = {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
@@ -353,8 +355,8 @@ class SMSManagerView extends Component {
     // })
 
     let panes = [
-      { menuItem: 'Drafts', render: () => <Tab.Pane><MessagePreviews user={[]} list_of_messages={this.state.all_messages} type='draft' product={this.state.product} showEditorView={this.props.showEditorView}/></Tab.Pane> },
-      { menuItem: 'Sent', render: () => <Tab.Pane><MessagePreviews user={[]} list_of_messages={this.state.all_messages} type='sent' product={this.state.product} showEditorView={this.props.showEditorView}/></Tab.Pane> },
+      { menuItem: 'Drafts', render: () => <Tab.Pane><MessagePreviews user={this.props.user} list_of_messages={this.state.all_messages.filter(lom => lom.message_type=='draft')} type='draft' product={this.state.product} showEditorView={this.props.showEditorView}/></Tab.Pane> },
+      { menuItem: 'Sent', render: () => <Tab.Pane><MessagePreviews list_of_messages={this.state.all_messages.filter(lom => lom.message_type=='sent')} type='sent' product={this.state.product} showEditorView={this.props.showEditorView}/></Tab.Pane> },
     ]
 
     return (
@@ -420,26 +422,71 @@ class MessagePreviews extends Component {
   constructor(props) {
     super(props);
 
-    console.log (props)
-    debugger
+    console.log ('chosen props',props, this.props)
+
+    this.state = {
+      list_of_messages : props.list_of_messages
+    }
+    
+  }
+
+  componentDidMount(){
+    this.updateMessages();
+  }
+
+
+  updateMessages = () => {debugger
+    console.log('refresh triggered')
+    let read_message_request = {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify()
+    }
+    
+    fetch('http://localhost:5000/', read_message_request)
+    .then(response => response.json())
+    .then(response => {
+      this.setState({
+        list_of_messages : response
+      })
+
+
+    })
+    .catch(err => { console.log(err); 
+    });
   }
 
 render () {
 
   let message_list = []
-  this.props.list_of_messages.forEach((message) => {
-    if (message.user_id === this.props.user.id) {
-      if (message.product_id === this.state.product.id) {
-        if (message.message_type === this.props.type) {
-          message_list.push(message)
-        }
-      }
-    }
-  })
+  
 
-  let message_component_list = []
-  this.props.list_of_messages.forEach((chosenMessage) => {
-    message_component_list.push(<Message message={chosenMessage} product={this.props.product} showEditorView={this.props.showEditorView}/>)
+  if (Object.keys(this.props).includes('user')) {
+
+    // this.props.list_of_messages.forEach((message) => {
+    //   console.log('running')
+    //   if (message.user_id === this.props.user.id) {
+    //     if (message.product_id === this.props.product.id) {
+    //       if (message.message_type === this.props.type) { console.log('2running')
+    //         message_list.push(message)
+    //       }
+    //     }
+    //   }
+    // })
+    
+    message_list = this.state.list_of_messages.filter(message => {
+      let result = false;
+        if (message.user_id == this.props.user.id && message.product_id == this.props.product.id && message.message_type == this.props.type)
+          result = true;
+      return result 
+    })
+  }else {
+    console.log('skip message_list because user not defined in props')
+  }
+  console.log('selected product =', this.props.product)
+
+  let message_component_list = message_list.map((chosenMessage) => {
+  return <Message message={chosenMessage} product={this.props.product} showEditorView={this.props.showEditorView} refresh={this.updateMessages}/>
   })
 
   return (
@@ -467,7 +514,11 @@ class Message extends Component {
 
   trashButtonPress = () => {
     // Delete
-    deleteMessage(this.props.message)
+
+    deleteMessage(this.props.message).then(res => {
+      console.log('delete complete, reconstructing messages list')
+      this.props.refresh();
+    })
   }
 
   render () {
@@ -482,7 +533,7 @@ class Message extends Component {
     return (
       <Item>
         <Item.Content>
-          <div class="right"><label>{this.props.message.date}</label></div>
+          <div className="right"><label>{this.props.message.date}</label></div>
           <Item.Description>
             {this.props.message.message_body}
           </Item.Description>
@@ -491,8 +542,8 @@ class Message extends Component {
           </Item.Meta>
           
           <Item.Extra>
-            <div class="right">
-              {trash_button}<button class="ui mini button" onClick={this.messageEditor}>{button_text}</button>
+            <div className="right">
+              {trash_button}<button className="ui mini button" onClick={this.messageEditor}>{button_text}</button>
             </div>
           </Item.Extra>
         </Item.Content>
@@ -547,7 +598,6 @@ class MessageEditorView extends Component {
   }
 
   saveButtonPress = () => {
-    this.props.updateMessages()
 
     let rightNow = new Date().toLocaleString()
     let phone = ''
@@ -591,8 +641,8 @@ class MessageEditorView extends Component {
           SMS Message Editor
         </Header>
         <div className='message-header'>
-          <button class="ui icon button" onClick={this.backbuttonPress}><i aria-hidden="true" class="left chevron icon"></i></button>
-          <div class="right">
+          <button className="ui icon button" onClick={this.backbuttonPress}><i aria-hidden="true" className="left chevron icon"></i></button>
+          <div className="right">
           <Popup trigger={<Button>Templates</Button>} flowing hoverable>
             <Grid centered divided columns={2}>
               <Grid.Column textAlign='center'>
