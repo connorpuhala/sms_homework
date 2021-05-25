@@ -274,5 +274,5 @@ flycheck_*.el
 # EMARK - IDE
 
 # MARK - POSTSCRIPT
-postgres-data
+postgres-data/*
 # EMARK - POSTSCRIPT

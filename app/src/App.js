@@ -6,14 +6,14 @@ import { Label } from 'semantic-ui-react';
 
 
 // Dev Stuff
-let new_test_message = {
-  "message_body": "wassssup!",
-  "phone_number": "9167594227",
-  "date": "04-11-2011",
-  "message_type": "draft",
-  "product_id": 1,
-  "user_id": 1
-}
+// let new_test_message = {
+//   "message_body": "wassssup!",
+//   "phone_number": "9167594227",
+//   "date": "04-11-2011",
+//   "message_type": "draft",
+//   "product_id": 1,
+//   "user_id": 1
+// }
 
 // Database calls (CRUD)
 function postMessage (newMessage) {
@@ -25,20 +25,20 @@ function postMessage (newMessage) {
   return fetch('http://localhost:5000/add', post_message_request)
 }
 
-let gatheredMessages = []
-function readMessages () {
-  let read_message_request = {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify()
-  }
-  fetch('http://localhost:5000/', read_message_request)
-    .then((response) => response.json())
-    .then((json) => {
-      gatheredMessages = json
-      console.log(gatheredMessages)
-      });
-}
+// let gatheredMessages = []
+// function readMessages () {
+//   let read_message_request = {
+//     method: 'GET',
+//     headers: { 'Content-Type': 'application/json' },
+//     body: JSON.stringify()
+//   }
+//   fetch('http://localhost:5000/', read_message_request)
+//     .then((response) => response.json())
+//     .then((json) => {
+//       gatheredMessages = json
+//       console.log(gatheredMessages)
+//       });
+// }
 
 function editMessage (editedMessage) {
   let patch_message_request = {
@@ -56,6 +56,18 @@ function deleteMessage (deletedMessage) {
     body: JSON.stringify(deletedMessage)
   }
   return fetch('http://localhost:5000/remove/' + deletedMessage.id, delete_message_request)
+}
+
+// Send text message 
+function sendMessage (messageToSend) {
+  let sendMessageRequest = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(
+      messageToSend
+    )
+  };
+  fetch('http://localhost:5000/send-message/', sendMessageRequest)
 }
 
 
@@ -339,24 +351,9 @@ class SMSManagerView extends Component {
   render () {
     const { selected } = this.state;
 
-    // let draftList = []
-    // let sentList = []
-
-    // this.state.all_messages.forEach((message) => {
-    //   if (message.user_id === this.props.user.id) {
-    //     if (message.product_id === this.state.product.id) {
-    //       if (message.message_type === 'draft') {
-    //         draftList.push(message)
-    //       } else {
-    //         sentList.push(message)
-    //       }
-    //     }
-    //   }
-    // })
-
     let panes = [
       { menuItem: 'Drafts', render: () => <Tab.Pane><MessagePreviews user={this.props.user} list_of_messages={this.state.all_messages.filter(lom => lom.message_type=='draft')} type='draft' product={this.state.product} showEditorView={this.props.showEditorView}/></Tab.Pane> },
-      { menuItem: 'Sent', render: () => <Tab.Pane><MessagePreviews list_of_messages={this.state.all_messages.filter(lom => lom.message_type=='sent')} type='sent' product={this.state.product} showEditorView={this.props.showEditorView}/></Tab.Pane> },
+      { menuItem: 'Sent', render: () => <Tab.Pane><MessagePreviews user={this.props.user} list_of_messages={this.state.all_messages.filter(lom => lom.message_type=='sent')} type='sent' product={this.state.product} showEditorView={this.props.showEditorView}/></Tab.Pane> },
     ]
 
     return (
@@ -633,8 +630,45 @@ class MessageEditorView extends Component {
       postMessage(new_message)
     }
   }
+
+  sendButtonPress = () => {
+    let rightNow = new Date().toLocaleString()
+    let message_for_sending
+    if (!this.props.message.id) {
+      message_for_sending = {
+        "message_body": this.state.body,
+        "phone_number": this.state.number,
+        "date": rightNow,
+        "message_type": "sent",
+        "product_id": this.state.product.id,
+        "user_id": this.props.user.id
+      }
+      postMessage(message_for_sending)
+    } else {
+      message_for_sending = {
+        "id": this.props.message.id,
+        "message_body": this.state.body,
+        "phone_number": this.state.number,
+        "date": rightNow,
+        "message_type": "sent",
+        "product_id": this.state.product.id,
+        "user_id": this.props.user.id
+      }
+      editMessage(message_for_sending)
+    }
+    sendMessage (message_for_sending)
+    this.props.showManagerView(this.props.user, this.state.product)
+  }
   
   render() {
+
+    let saveDraftButton
+    let sendText = "Send Again"
+    if (this.props.message.message_type == 'draft' ) {
+      saveDraftButton = <Button type="submit" onClick={this.saveButtonPress}>Save Draft</Button>
+      sendText = "Send"
+    }
+
     return (
       <div>
         <Header as='h2' color='teal' textAlign='center'>
@@ -668,8 +702,8 @@ class MessageEditorView extends Component {
             <label>Recipient Phone Number</label>
             <input placeholder='xxxxxxxxxx' value={this.state.number} onChange={this.updateNumber}/>
           </Form.Field>
-          <Button type="submit" onClick={this.saveButtonPress}>Save Draft</Button>
-          <Button type="submit" color='teal' >Send</Button>
+          {saveDraftButton}
+          <Button type="submit" onClick={this.sendButtonPress} color='teal' >{sendText}</Button>
         </Form>
       </div>
     )

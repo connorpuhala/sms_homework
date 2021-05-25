@@ -2,6 +2,7 @@
 
 import os
 import json
+from twilio.rest import Client
 
 from flask import request
 from flask_cors import CORS, cross_origin
@@ -102,6 +103,24 @@ def edit(message_id):
     edit_instance(Messages, id=message_id, message_body=new_message_body, phone_number=new_phone_number, date=new_date, message_type=new_message_type)
     return json.dumps("Edited"), 200
 
+
+@app.route('/send-message/', methods=['POST'])
+@cross_origin()
+def send_message():
+    myMessage = request.json['message_body']
+    myNumber = '+1' + request.json['phone_number']
+
+    account_sid = 'AC4eac629081a1183c4bc47aab75c09c00'
+    auth_token = '10227147f46d6dc25c0b07cd5987978d'
+    client = Client(account_sid, auth_token)
+
+    returnMessage = client.messages \
+                            .create(
+                                body=myMessage,
+                                from_='+14159937658',
+                                to=myNumber,
+                            )
+    return "Sent"
 
 if __name__ == "__main__":
     app.run(debug=os.environ.get("FLASK_DEBUG", False))
