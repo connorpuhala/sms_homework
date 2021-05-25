@@ -111,7 +111,7 @@ def send_message():
     myNumber = '+1' + request.json['phone_number']
 
     account_sid = 'AC4eac629081a1183c4bc47aab75c09c00'
-    auth_token = '10227147f46d6dc25c0b07cd5987978d'
+    auth_token = 'dcfc391ec980482393c8baba68e847d4'
     client = Client(account_sid, auth_token)
 
     returnMessage = client.messages \

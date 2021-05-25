@@ -1,78 +1,9 @@
-import React, { Component, useEffect, useState } from 'react';
-import logo from './logo.svg';
+import React, { Component } from 'react';
 import './App.css';
 import { Button, Container, Divider, Dropdown, Form, Grid, Header, Icon, Image, Item, ItemGroup, Popup, Tab } from 'semantic-ui-react';
-import { Label } from 'semantic-ui-react';
 
-
-// Dev Stuff
-// let new_test_message = {
-//   "message_body": "wassssup!",
-//   "phone_number": "9167594227",
-//   "date": "04-11-2011",
-//   "message_type": "draft",
-//   "product_id": 1,
-//   "user_id": 1
-// }
-
-// Database calls (CRUD)
-function postMessage (newMessage) {
-  let post_message_request = {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(newMessage)
-  }
-  return fetch('http://localhost:5000/add', post_message_request)
-}
-
-// let gatheredMessages = []
-// function readMessages () {
-//   let read_message_request = {
-//     method: 'GET',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify()
-//   }
-//   fetch('http://localhost:5000/', read_message_request)
-//     .then((response) => response.json())
-//     .then((json) => {
-//       gatheredMessages = json
-//       console.log(gatheredMessages)
-//       });
-// }
-
-function editMessage (editedMessage) {
-  let patch_message_request = {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(editedMessage)
-  }
-  return fetch('http://localhost:5000/edit/' + editedMessage.id, patch_message_request)
-}
-
-function deleteMessage (deletedMessage) {
-  let delete_message_request = {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(deletedMessage)
-  }
-  return fetch('http://localhost:5000/remove/' + deletedMessage.id, delete_message_request)
-}
-
-// Send text message 
-function sendMessage (messageToSend) {
-  let sendMessageRequest = {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(
-      messageToSend
-    )
-  };
-  fetch('http://localhost:5000/send-message/', sendMessageRequest)
-}
-
-
-// Seed Data for Users + Products//
-// Users
+// Seed Data
+// Seed Data for Users
 let user_1 = {
   "id": 1,
   "username": "ElizaBlank",
@@ -89,7 +20,7 @@ let user_2 = {
 
 let user_list = [user_1, user_2]
 
-// Products
+// Seed Data for Products
 let product_1 = {
   "id": 1,
   "name": "Ficus Altissima",
@@ -141,18 +72,61 @@ let product_7 = {
 
 let product_list = [product_1, product_2, product_3, product_4, product_5, product_6, product_7]
 
-// Templates
+// SMS Message Templates
 const shippedTemplate = {
-  subject: 'Shipped!',
-  body: 'On the way!',
+  subject: 'Shipped',
+  body: 'Your product has been shipped and is on the way! Thank you for shopping with us.',
 }
 const delayedTemplate = {
-  subject: 'Delayed!',
-  body: 'Sorry bout it!',
+  subject: 'Delayed',
+  body: 'Unfortunately, there was a delay with getting your product shipped out. We will contact you shortly with more details.',
 }
 
 
-// Application Componenets //
+// Database calls (CRUD) - 'Read' takes place later on as a component function
+function postMessage (newMessage) {
+  let post_message_request = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newMessage)
+  }
+  return fetch('http://localhost:5000/add', post_message_request)
+}
+
+function editMessage (editedMessage) {
+  let patch_message_request = {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(editedMessage)
+  }
+  return fetch('http://localhost:5000/edit/' + editedMessage.id, patch_message_request)
+}
+
+function deleteMessage (deletedMessage) {
+  let delete_message_request = {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(deletedMessage)
+  }
+  return fetch('http://localhost:5000/remove/' + deletedMessage.id, delete_message_request)
+}
+
+// Send text message using Twilio
+function sendMessage (messageToSend) {
+  let sendMessageRequest = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(
+      messageToSend
+    )
+  };
+  fetch('http://localhost:5000/send-message/', sendMessageRequest)
+}
+
+
+
+// Application Componenets
+// Main App Container
 class MainAppContainer extends Component {
   constructor(props) {
     super(props);
@@ -215,6 +189,7 @@ class MainAppContainer extends Component {
   }
 } 
 
+// Main Views
 class LoginView extends Component {
   constructor(props) {
     super(props);
@@ -392,6 +367,169 @@ class SMSManagerView extends Component {
   }
 } 
 
+class MessageEditorView extends Component {
+  constructor(props) {
+    super(props);
+
+    if (this.props.message) {
+      this.state = {
+        body : this.props.message.message_body,
+        number : this.props.message.phone_number,
+        type : this.props.message.message_type,
+        product : this.props.product
+      }
+    } else {
+      this.state = {
+        body : '',
+        number : '',
+        type : "draft",
+        product : this.props.product
+      }
+    }    
+  }
+
+  fillTemplate = (templateChoice) => {
+    if (templateChoice === 0) {
+      this.setState({ 
+        body : shippedTemplate.body
+      });
+    } else if (templateChoice === 1) {
+      this.setState({ 
+        body : delayedTemplate.body
+      });
+    }
+  }
+
+  updateBody = (e) => {
+    this.setState({body: e.target.value});
+  }
+
+  updateNumber = (e) => {
+    this.setState({number: e.target.value});
+  }
+
+  backbuttonPress = () => {
+    this.props.showManagerView(this.props.user, this.state.product)
+  }
+
+  saveButtonPress = () => {
+
+    let rightNow = new Date().toLocaleString()
+    let phone = ''
+    if (this.state.number) {
+      phone = this.state.number
+    } else {
+      phone = ''
+    }
+    
+    if (this.props.message.id) {
+      // Edit
+      let edited_message = {
+        "id": this.props.message.id,
+        "message_body": this.state.body,
+        "phone_number": phone,
+        "date": rightNow,
+        "message_type": "draft",
+        "product_id": this.state.product.id,
+        "user_id": this.props.user.id
+      }
+      editMessage(edited_message)
+
+    } else {
+      // Create
+      let new_message = {
+        "message_body": this.state.body,
+        "phone_number": phone,
+        "date": rightNow,
+        "message_type": "draft",
+        "product_id": this.state.product.id,
+        "user_id": this.props.user.id
+      }
+      postMessage(new_message)
+    }
+  }
+
+  sendButtonPress = () => {
+    let rightNow = new Date().toLocaleString()
+    let message_for_sending
+    if (!this.props.message.id) {
+      message_for_sending = {
+        "message_body": this.state.body,
+        "phone_number": this.state.number,
+        "date": rightNow,
+        "message_type": "sent",
+        "product_id": this.state.product.id,
+        "user_id": this.props.user.id
+      }
+      postMessage(message_for_sending)
+    } else {
+      message_for_sending = {
+        "id": this.props.message.id,
+        "message_body": this.state.body,
+        "phone_number": this.state.number,
+        "date": rightNow,
+        "message_type": "sent",
+        "product_id": this.state.product.id,
+        "user_id": this.props.user.id
+      }
+      editMessage(message_for_sending)
+    }
+    debugger
+    sendMessage (message_for_sending)
+    this.props.showManagerView(this.props.user, this.state.product)
+  }
+  
+  render() {
+
+    let saveDraftButton
+    let sendText = "Send Again"
+    if (this.props.message.message_type == 'draft' ) {
+      saveDraftButton = <Button type="submit" onClick={this.saveButtonPress}>Save Draft</Button>
+      sendText = "Send"
+    }
+
+    return (
+      <div>
+        <Header as='h2' color='teal' textAlign='center'>
+          SMS Message Editor
+        </Header>
+        <div className='message-header'>
+          <button className="ui icon button" onClick={this.backbuttonPress}><i aria-hidden="true" className="left chevron icon"></i></button>
+          <div className="right">
+          <Popup trigger={<Button>Templates</Button>} flowing hoverable>
+            <Grid centered divided columns={2}>
+              <Grid.Column textAlign='center'>
+                <Header as='h4'>Product Has Been Shipped!</Header>
+                <Button onClick={() => this.fillTemplate(0)}>Choose</Button>
+              </Grid.Column>
+              <Grid.Column textAlign='center'>
+                <Header as='h4'>Shipment Delayed</Header>
+                <Button onClick={() => this.fillTemplate(1)}>Choose</Button>
+              </Grid.Column>
+            </Grid>
+          </Popup>   
+          </div>
+        </div>
+        <Form style={{ 'padding-top': '10px '}}>
+          <Divider />
+          <ItemGroup>
+            <ProductPreview product={this.state.product}/> 
+          </ItemGroup>
+          <Divider />
+          <Form.TextArea label='Message' placeholder='Write your shipping message here...' value={this.state.body} onChange={this.updateBody}/>
+          <Form.Field>
+            <label>Recipient Phone Number</label>
+            <input placeholder='xxxxxxxxxx' value={this.state.number} onChange={this.updateNumber}/>
+          </Form.Field>
+          {saveDraftButton}
+          <Button type="submit" onClick={this.sendButtonPress} color='teal' >{sendText}</Button>
+        </Form>
+      </div>
+    )
+  }
+}
+
+// Subcomponenets
 class ProductPreview extends Component {
   constructor(props) {
     super(props);
@@ -549,167 +687,7 @@ class Message extends Component {
   }
 }
 
-class MessageEditorView extends Component {
-  constructor(props) {
-    super(props);
-
-    if (this.props.message) {
-      this.state = {
-        body : this.props.message.message_body,
-        number : this.props.message.phone_number,
-        type : this.props.message.message_type,
-        product : this.props.product
-      }
-    } else {
-      this.state = {
-        body : '',
-        number : '',
-        type : "draft",
-        product : this.props.product
-      }
-    }    
-  }
-
-  fillTemplate = (templateChoice) => {
-    if (templateChoice === 0) {
-      this.setState({ 
-        body : shippedTemplate.body
-      });
-    } else if (templateChoice === 1) {
-      this.setState({ 
-        body : delayedTemplate.body
-      });
-    }
-  }
-
-  updateBody = (e) => {
-    this.setState({body: e.target.value});
-  }
-
-  updateNumber = (e) => {
-    this.setState({number: e.target.value});
-  }
-
-  backbuttonPress = () => {
-    this.props.showManagerView(this.props.user, this.state.product)
-  }
-
-  saveButtonPress = () => {
-
-    let rightNow = new Date().toLocaleString()
-    let phone = ''
-    if (this.state.number) {
-      phone = this.state.number
-    } else {
-      phone = ''
-    }
-    
-    if (this.props.message.id) {
-      // Edit
-      let edited_message = {
-        "id": this.props.message.id,
-        "message_body": this.state.body,
-        "phone_number": phone,
-        "date": rightNow,
-        "message_type": "draft",
-        "product_id": this.state.product.id,
-        "user_id": this.props.user.id
-      }
-      editMessage(edited_message)
-
-    } else {
-      // Create
-      let new_message = {
-        "message_body": this.state.body,
-        "phone_number": phone,
-        "date": rightNow,
-        "message_type": "draft",
-        "product_id": this.state.product.id,
-        "user_id": this.props.user.id
-      }
-      postMessage(new_message)
-    }
-  }
-
-  sendButtonPress = () => {
-    let rightNow = new Date().toLocaleString()
-    let message_for_sending
-    if (!this.props.message.id) {
-      message_for_sending = {
-        "message_body": this.state.body,
-        "phone_number": this.state.number,
-        "date": rightNow,
-        "message_type": "sent",
-        "product_id": this.state.product.id,
-        "user_id": this.props.user.id
-      }
-      postMessage(message_for_sending)
-    } else {
-      message_for_sending = {
-        "id": this.props.message.id,
-        "message_body": this.state.body,
-        "phone_number": this.state.number,
-        "date": rightNow,
-        "message_type": "sent",
-        "product_id": this.state.product.id,
-        "user_id": this.props.user.id
-      }
-      editMessage(message_for_sending)
-    }
-    sendMessage (message_for_sending)
-    this.props.showManagerView(this.props.user, this.state.product)
-  }
-  
-  render() {
-
-    let saveDraftButton
-    let sendText = "Send Again"
-    if (this.props.message.message_type == 'draft' ) {
-      saveDraftButton = <Button type="submit" onClick={this.saveButtonPress}>Save Draft</Button>
-      sendText = "Send"
-    }
-
-    return (
-      <div>
-        <Header as='h2' color='teal' textAlign='center'>
-          SMS Message Editor
-        </Header>
-        <div className='message-header'>
-          <button className="ui icon button" onClick={this.backbuttonPress}><i aria-hidden="true" className="left chevron icon"></i></button>
-          <div className="right">
-          <Popup trigger={<Button>Templates</Button>} flowing hoverable>
-            <Grid centered divided columns={2}>
-              <Grid.Column textAlign='center'>
-                <Header as='h4'>Product Has Been Shipped!</Header>
-                <Button onClick={() => this.fillTemplate(0)}>Choose</Button>
-              </Grid.Column>
-              <Grid.Column textAlign='center'>
-                <Header as='h4'>Shipment Delayed</Header>
-                <Button onClick={() => this.fillTemplate(1)}>Choose</Button>
-              </Grid.Column>
-            </Grid>
-          </Popup>   
-          </div>
-        </div>
-        <Form style={{ 'padding-top': '10px '}}>
-          <Divider />
-          <ItemGroup>
-            <ProductPreview product={this.state.product}/> 
-          </ItemGroup>
-          <Divider />
-          <Form.TextArea label='Message' placeholder='Write your shipping message here...' value={this.state.body} onChange={this.updateBody}/>
-          <Form.Field>
-            <label>Recipient Phone Number</label>
-            <input placeholder='xxxxxxxxxx' value={this.state.number} onChange={this.updateNumber}/>
-          </Form.Field>
-          {saveDraftButton}
-          <Button type="submit" onClick={this.sendButtonPress} color='teal' >{sendText}</Button>
-        </Form>
-      </div>
-    )
-  }
-}
-
+// App
 function App() {
 
   return (
