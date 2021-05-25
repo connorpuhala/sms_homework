@@ -435,7 +435,7 @@ class MessagePreviews extends Component {
   }
 
 
-  updateMessages = () => {debugger
+  updateMessages = () => {
     console.log('refresh triggered')
     let read_message_request = {
       method: 'GET',
