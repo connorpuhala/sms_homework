@@ -16,11 +16,9 @@ Along with the technologies listed, I am also utilizing the Semantic UI React cs
 
 ## Seed data login information
 
-(company 1)
 ElizaBlank
 Puppy2
 
-(company 2)
 LadyGaga
 musicismylife
 
