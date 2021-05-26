@@ -24,7 +24,8 @@ musicismylife
 
 ## 2) New technologies to me
 
-Although I had used Docker briefly in the past, I had some trouble with it here. The problems I ran into sent me down a few different rabbit holes that taught me a lot more about Docker than I had previously known.
+Although I had used Docker briefly in the past, I had some trouble with it here. The problems I ran into sent me down a few different rabbit holes that taught me a lot more about Docker than I had previously known.<br />
+
 Flask & SQLAlchemy were completely new to me.
 
 ## 3) Time spent
