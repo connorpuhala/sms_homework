@@ -10,10 +10,8 @@ from flask_cors import CORS, cross_origin
 from bootstrap import app_factory, database_factory
 from models import *
 
+# Init App
 app = app_factory()
-# TODO: This doesn't have to be done here,
-#       but should be done at some point to
-#       mount SQLAlchemy to the Flask app.
 
 db = database_factory(app)
 db.create_all()
@@ -45,7 +43,7 @@ def commit_changes():
     db.session.commit()
 
 
-# API Endpoints
+# API Endpoints (Crud)
 @app.route("/health-check")
 def health_check():
     return {"success": True}
@@ -104,6 +102,7 @@ def edit(message_id):
     return json.dumps("Edited"), 200
 
 
+# Twilio API
 @app.route('/send-message/', methods=['POST'])
 @cross_origin()
 def send_message():

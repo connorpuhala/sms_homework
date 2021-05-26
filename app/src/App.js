@@ -7,7 +7,7 @@ import { Button, Container, Divider, Dropdown, Form, Grid, Header, Icon, Image, 
 let user_1 = {
   "id": 1,
   "username": "ElizaBlank",
-  "password": "",
+  "password": "puppy2",
   "company_id": 1
 }
 
