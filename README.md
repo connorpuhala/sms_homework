@@ -42,8 +42,8 @@ Build out the database (to include users, companies, and products)<br />
 Include field validation<br />
 Error handling<br />
 Communication with user / Application status / Alerts for things like…<br />
-Incorrect login credentials <br />
-Improperly formatted phone number entries<br />
+- Incorrect login credentials <br />
+- Improperly formatted phone number entries<br />
 Message sorting<br />
 
 Connor Puhala 2021
