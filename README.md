@@ -1,98 +1,60 @@
-# Introduction:
+# SMS Postscript.io HW Assignment:
 
-Thanks for continuing your application to Postscript Engineering!
+What a fun assignment! :)
 
-This assignment very closely mimics work we are doing at Postscript - it’s a stripped down version of a core part of our functionality. So it should give you a good sense of whether you want to work at Postscript, and give us a good sense of what it would be like to have you on our team. 
+## 1) An explanation of my solution
 
-In particular, to do well on this project you’ll probably need to work like we do: follow the [80/20 rule](https://en.wikipedia.org/wiki/Pareto_principle). There are a lot of technologies listed below and we want you to use all of them. You’re probably not familiar with all of them, but you only need to learn enough to get the assignment working. We’re not looking for perfect usage of any tool.
+My application utilizes a ReactJS Front-end that communicates via Fetch with Flask API endpoints. These endpoints are responsible for CRUD operations and work in conjunction with SQLAlchemy to communicate with a PostgreSQL database which currently contains one table for ‘messages’. User account information, company information, and product information are all hard coded as seed data into the React .js App file due to time constraints (in line with the 80/20 concept). The application is hosted on Docker, which contains three separate containers (one for the app, one for the api, and one for the database).
 
-In addition to the code, please send us: 1) an explanation of your solution, 2) a list of the technologies used that were totally new to you, so we can take that into account, 3) roughly how long you took
+Flask is also responsible for calling on the Twilio API to send text messages through my Twilio trial account. Only whitelisted numbers currently work (my number, 9167594227, for example). 
 
-## Evaluation Criteria:
+There are 2 seed user accounts corresponding to two potential client companies. Logged in users can only view products associated with their company. Logged in users can also only view messages that they personally created or sent, not those created or sent by any other user (which means messages are associated to both product_id and user_id).
 
-- Learning & implementing new frameworks / languages 
-- Speed / Resourcefulness 
-- Working within a broad spec / autonomous decision making
-- Quality given the amount of time taken (it would be reasonable to submit a medium-quality solution that you were able to do quickly)
+There are 2 message templates available in the sms message editor view, which can be customized to fit a user’s needs.
 
-## Assignment:
+Along with the technologies listed, I am also utilizing the Semantic UI React css library as well as the Flask CORS dependency (a development tool for allowing smooth communication between my docker containers). 
 
-Please create a tool that can send shipment notifications as text messages. All of the functionality you create must be exposed through a single front-end interface. It must interact with back-end API’s to perform its functions.
+## Seed data login information
 
-The main flows to implement are: 
+(company 1)
+ElizaBlank
+Puppy2
 
-- A user can choose a particular product and save a draft of a shipping notification for that product. For purposes of this assignment, we want to be able to create different shipping notifications for different products. There can be multiple draft message for a product or one per product, that is up to you.
+(company 2)
+LadyGaga
+musicismylife
 
-- A user can also look up draft versions of these text messages that have been saved, and click a button to actually send one of them to a number (which they provide at the time of sending).
+## 2) New technologies to me
 
-Additional details under “User Flows.”
+Although I had used Docker briefly in the past, I had some trouble with it here. The problems I ran into sent me down a few different rabbit holes that taught me a lot more about Docker than I had previously known.
+Flask & SQLAlchemy were completely new to me.
 
-## Tooling:
+## 3) Time spent
 
-Please use the following technologies. If you are unfamiliar with them, learn the minimum required to get the job done. When you send in your assignment, you can tell us which ones you had to learn from scratch and we will take that into account.
+~ Actual writing of the application code : 6 hours
+~ Although I did spend additional time outside of the coding hours to learn the new technologies.
 
-- Flask (Python) to create the API endpoints
-- Connect to DB using SQLAlchemy or pure SQL
-- PostgreSQL database
-- ReactJS Front-end (or Flask HTML)
-- It is totally fine to use only pure HTML (via Flask) if you are unfamiliar with front-end technologies. There is room on our team for pure backend developers. But if you have front-end skills you can show them here.
-- Twilio to send text messages (if for some reason you can’t create a trial account for free credit, let us know)
+## Reflection
 
-This does not need to be deployed and available to the internet as long as it can be run locally. The assignment should utilize Docker Compose in order to run locally on any setup.
+I’m happy with the application’s functionality and appearance, and was able to utilize all of the requested technologies. However, with more time, I would change a few things…
 
-## User Flows:
+Utilize ‘composition’ with the React architecture 
+Refactor some of my React logic
+Build out the database (to include users, companies, and products)
+Include field validation
+Error handling
+Communication with user / Application status / Alerts 
+For things like…
+Incorrect login credentials 
+Improperly formatted phone number entries
+Message sorting
 
-- Users should be able to query a list of available products 
-- Users should be able to create and save a message for a product
-- Saving a message requires a product_id to be attached to the message and should throw an error otherwise
-For example, the message object might look like 
-```
-{ 
-  "message" : "Some string",
-  "Product_id":1
-}
-  ```
-- Users should be able to view messages for a product
-- Users should be able to send messages for a product
+Connor Puhala 2021
 
-- This should utilize the Twilio API -- use a Twilio trial account, it is OK if the message does not send to outside / non-whitelisted numbers.
 
-## Getting Setup:
 
-There are 2 folders contained with this homework:
 
-**`api`**
 
-The `api` folder houses the `Dockerfile` to build and run the `Flask` application against the `db`. It contains a bootstrapped `Flask` object and `Flask-SQLAlchemy` already setup to work with the larger `docker-compose.yml` file of this homework.
-
-**`app`**
-
-The `app` folder contains a boilerplate `react-scripts` react app with no additional functionality. Feel free to replace this with your technology of choice (and appropriately update the `Dockerfile` and/or the `docker-compose.yml` file if need-be).
-
-__Note:__ If you'd like to use `yarn` instead of `npm`, open the `app/Dockerfile` and swap `npm install --silent` with `yarn install --silent`
-
-### Running the Environment
-
-Once you've created a `package.json` in the `app` folder, you're ready to run the `docker-compose` environment.
-
-By default, when running the `docker-compose` of this repo, the ports will map as follows:
-
-- `api` - Port 5000
-- `db` - Port 5432
-- `app` - Port 3000
-
-Running the environment is now as easy as `docker compose up`.
-
-- Visit `http://localhost:5000/health-check` to verify the api is working.
-- Visit `http://localhost:3000` to see your frontend application
-
-## Delivery:
-
-Please do not spend more than 5 hours on this assignment.
-
-We recommend using git archive; we want a zip without commits.
-
-Please deliver the assignment in a zip file and submit it through the Greenhouse link provided.
 
 
 
