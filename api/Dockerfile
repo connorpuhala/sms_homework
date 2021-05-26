@@ -1,7 +1,5 @@
 FROM python:3.6
 
-RUN mkdir /opt/postgres-data
-
 # set work directory
 WORKDIR /opt/api
 
