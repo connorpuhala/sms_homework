@@ -277,5 +277,4 @@ flycheck_*.el
 # EMARK - POSTSCRIPT
 
 #postgres-data
-postgres-data/*
-!postgres-data/.gitkeep 
+postgres-data/
