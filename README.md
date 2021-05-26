@@ -16,10 +16,10 @@ Along with the technologies listed, I am also utilizing the Semantic UI React cs
 
 ## Seed data login information
 
-ElizaBlank
+ElizaBlank<br />
 puppy2
 
-LadyGaga
+LadyGaga<br />
 musicismylife
 
 ## 2) New technologies to me
@@ -29,23 +29,22 @@ Flask & SQLAlchemy were completely new to me.
 
 ## 3) Time spent
 
-~ Actual writing of the application code : 6 hours
+~ Actual writing of the application code : 6 hours<br />
 ~ Although I did spend additional time outside of the coding hours to learn the new technologies.
 
 ## Reflection
 
 I’m happy with the application’s functionality and appearance, and was able to utilize all of the requested technologies. However, with more time, I would change a few things…
 
-Utilize ‘composition’ with the React architecture 
-Refactor some of my React logic
-Build out the database (to include users, companies, and products)
-Include field validation
-Error handling
-Communication with user / Application status / Alerts 
-For things like…
-Incorrect login credentials 
-Improperly formatted phone number entries
-Message sorting
+Utilize ‘composition’ with the React architecture <br />
+Refactor some of my React logic<br />
+Build out the database (to include users, companies, and products)<br />
+Include field validation<br />
+Error handling<br />
+Communication with user / Application status / Alerts for things like…<br />
+Incorrect login credentials <br />
+Improperly formatted phone number entries<br />
+Message sorting<br />
 
 Connor Puhala 2021
 
