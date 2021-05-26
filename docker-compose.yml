@@ -13,7 +13,9 @@ services:
       - 5429:5432
     restart: always
     volumes:
+      - /var/lib/postgresql/data
       - ./postgres-data:/var/lib/postgresql/data
+      
   
   api:
     build: ./api
