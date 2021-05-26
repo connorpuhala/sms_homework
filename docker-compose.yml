@@ -44,6 +44,7 @@ services:
     stdin_open: true
     volumes:
       - ./app:/opt/app
+      - /opt/app/node_modules
 
 networks:
   postscript:
